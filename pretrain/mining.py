@@ -151,6 +151,7 @@ def save(model: PreTrainedModel, model_dir: str):
     model.save_pretrained(
         save_directory=model_dir,
         safe_serialization=True,
+        max_shard_size="1GB"
     )
 
 
