@@ -12,6 +12,7 @@ Prerequisites:
 import asyncio
 import os
 import argparse
+import huggingface_hub
 import constants
 from taoverse.metagraph import utils as metagraph_utils
 from taoverse.model.storage.chain.chain_model_metadata_store import (
@@ -112,6 +113,8 @@ async def main(config: bt.config):
         config.competition_id,
         metadata_store=chain_metadata_store,
     )
+    print(f"Updating repo visibility for {config.hf_repo_id}")
+    huggingface_hub.update_repo_visibility(config.hf_repo_id, private=False, token=os.getenv("HF_ACCESS_TOKEN"))
 
 
 if __name__ == "__main__":
