@@ -125,6 +125,8 @@ You can manually upload with the following command:
 python scripts/upload_model.py --load_model_dir <path to model> --competition_id 0 --hf_repo_id my-username/my-project --wallet.name coldkey --wallet.hotkey hotkey
 ```
 
+Note: We recommend keeping your hugging face repo private until after you have committed your metadata to the chain. This ensures other miners are unable to upload your model as their own until a later block. Adding the `--update_repo_visibility` flag will also automatically attempt to update the hugging face repo visibility to public after committing to the chain.
+
 Note: If you are not sure about the competition ID, you can add the `--list_competitions` flag to get a list of all competitions. You can also check out competition IDs in [competitions/data.py](https://github.com/macrocosm-os/pretraining/blob/main/competitions/data.py).
 
 ## Running a custom Miner

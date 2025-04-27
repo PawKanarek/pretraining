@@ -45,9 +45,10 @@ class TestMining(unittest.TestCase):
             pt.mining.push(
                 model=self.tiny_model,
                 wallet=self.wallet,
-                competition_id=CompetitionId.B7_MODEL,
+                competition_id=CompetitionId.B14_MODEL,
                 repo="namespace/name",
                 retry_delay_secs=1,
+                update_repo_visibility=False,
                 metadata_store=self.metadata_store,
                 remote_model_store=self.remote_store,
             )

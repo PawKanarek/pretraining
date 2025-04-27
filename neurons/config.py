@@ -33,12 +33,6 @@ def validator_config():
         help="Number of blocks to wait before setting weights.",
     )
     parser.add_argument(
-        "--pages_per_eval",
-        type=int,
-        default=None,
-        help="Number of pages used to eval each step. If not specified, it will be automatically set.",
-    )
-    parser.add_argument(
         "--sample_min",
         type=int,
         default=constants.sample_min,
@@ -67,7 +61,7 @@ def validator_config():
     )
     parser.add_argument(
         "--netuid",
-        type=str,
+        type=int,
         default=constants.SUBNET_UID,
         help="The subnet UID.",
     )

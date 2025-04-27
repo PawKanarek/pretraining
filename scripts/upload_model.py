@@ -21,6 +21,7 @@ from taoverse.model.storage.chain.chain_model_metadata_store import (
 from taoverse.model.storage.hugging_face.hugging_face_model_store import (
     HuggingFaceModelStore,
 )
+from taoverse.utilities import utils as taoverse_utils
 from taoverse.utilities.enum_action import IntEnumAction
 import pretrain as pt
 import bittensor as bt
@@ -41,7 +42,7 @@ def get_config():
     parser.add_argument(
         "--hf_repo_id",
         type=str,
-        help="The hugging face repo id, which should include the org or user and repo name. E.g. jdoe/pretraining",
+        help="The hugging face repo id, which should include the org or user and repo name. E.g. jdoe/model_name",
     )
     parser.add_argument(
         "--load_model_dir",
@@ -51,7 +52,7 @@ def get_config():
     )
     parser.add_argument(
         "--netuid",
-        type=str,
+        type=int,
         default=constants.SUBNET_UID,
         help="The subnet UID.",
     )
@@ -63,6 +64,11 @@ def get_config():
     )
     parser.add_argument(
         "--list_competitions", action="store_true", help="Print out all competitions"
+    )
+    parser.add_argument(
+        "--update_repo_visibility",
+        action="store_true",
+        help="If true, the repo will be made public after uploading.",
     )
 
     # Include wallet and logging arguments from bittensor
@@ -79,7 +85,9 @@ def get_config():
 async def main(config: bt.config):
     # Create bittensor objects.
     bt.logging(config=config)
-    
+    taoverse_utils.logging.reinitialize()
+    taoverse_utils.configure_logging(config)
+
     wallet = bt.wallet(config=config)
     subtensor = bt.subtensor(config=config)
     metagraph = subtensor.metagraph(config.netuid)
@@ -93,25 +101,17 @@ async def main(config: bt.config):
     metagraph_utils.assert_registered(wallet, metagraph)
     HuggingFaceModelStore.assert_access_token_exists()
 
-    # Get current model parameters
-    model_constraints = constants.MODEL_CONSTRAINTS_BY_COMPETITION_ID.get(
-        config.competition_id, None
-    )
-
-    if model_constraints is None:
-        raise RuntimeError(
-            f"Could not find current competition for id: {config.competition_id}"
-        )
 
     # Load the model from disk and push it to the chain and Hugging Face.
-    model = pt.mining.load_local_model(config.load_model_dir, model_constraints.kwargs)
+    model = pt.mining.load_local_model(config.load_model_dir, config.competition_id)
 
     await pt.mining.push(
         model,
         config.hf_repo_id,
-        wallet,        
+        wallet,
         config.competition_id,
         metadata_store=chain_metadata_store,
+        update_repo_visibility=config.update_repo_visibility,
     )
     print(f"Updating repo visibility for {config.hf_repo_id}")
     huggingface_hub.update_repo_visibility(config.hf_repo_id, private=False, token=os.getenv("HF_ACCESS_TOKEN"))
@@ -125,4 +125,3 @@ if __name__ == "__main__":
     else:
         print(config)
         asyncio.run(main(config))
-
