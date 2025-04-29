@@ -127,6 +127,7 @@ class ScoreDetails:
     norm_score: typing.Optional[float] = None
     weighted_norm_score: typing.Optional[float] = None
     num_samples: int = 0
+    duration: float = 0
 
 
 def score_model(
